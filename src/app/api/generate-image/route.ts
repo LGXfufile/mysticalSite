@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { AIImageGenerator, TarotCardImagePrompt, AIImageConfig } from '@/services/ai-image-generator'
 
+function getApiKey(provider: string): string {
+  switch (provider) {
+    case 'openai':
+      return process.env.OPENAI_API_KEY || ''
+    case 'stability':
+      return process.env.STABILITY_API_KEY || ''
+    case 'replicate':
+      return process.env.REPLICATE_API_TOKEN || ''
+    case 'deepseek':
+      return process.env.OPENAI_API_KEY || '' // DeepSeek uses OpenAI format
+    default:
+      return process.env.OPENAI_API_KEY || ''
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -26,21 +41,6 @@ export async function POST(request: NextRequest) {
         { error: `No API key configured for provider: ${provider}` },
         { status: 500 }
       )
-    }
-
-    function getApiKey(provider: string): string {
-      switch (provider) {
-        case 'openai':
-          return process.env.OPENAI_API_KEY || ''
-        case 'stability':
-          return process.env.STABILITY_API_KEY || ''
-        case 'replicate':
-          return process.env.REPLICATE_API_TOKEN || ''
-        case 'deepseek':
-          return process.env.OPENAI_API_KEY || '' // DeepSeek uses OpenAI format
-        default:
-          return process.env.OPENAI_API_KEY || ''
-      }
     }
 
     const generator = new AIImageGenerator(config)
