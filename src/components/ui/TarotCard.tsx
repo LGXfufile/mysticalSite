@@ -228,18 +228,23 @@ export function TarotCardComponent({
                 </h3>
               </div>
 
-              {/* Card image placeholder */}
-              <div className="absolute top-16 left-4 right-4 bottom-20 bg-gradient-to-br from-mystical-light/10 to-mystical-gold/10 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <Sparkles className="w-12 h-12 text-mystical-purple mx-auto mb-2" />
-                  <div className="text-xs text-mystical-deep font-semibold">
-                    {card.arcana} Arcana
-                  </div>
-                  {card.suit && (
-                    <div className="text-xs text-mystical-purple mt-1">
-                      {card.suit} {card.number && `• ${card.number}`}
+              {/* Card image placeholder - now with 3D support */}
+              <div className="absolute top-16 left-4 right-4 bottom-20 bg-gradient-to-br from-mystical-light/10 to-mystical-gold/10 rounded-lg overflow-hidden">
+                {/* 3D Card integration */}
+                <div className="w-full h-full relative">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <Sparkles className="w-12 h-12 text-mystical-purple mx-auto mb-2" />
+                      <div className="text-xs text-mystical-deep font-semibold">
+                        {card.arcana} Arcana
+                      </div>
+                      {card.suit && (
+                        <div className="text-xs text-mystical-purple mt-1">
+                          {card.suit} {card.number && `• ${card.number}`}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 

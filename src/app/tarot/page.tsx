@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { TarotCardComponent } from '@/components/ui/TarotCard'
 import { ShuffleAnimation } from '@/components/ui/ShuffleAnimation'
+import Interactive3DTarot from '@/components/3d/Interactive3DTarot'
 import { TarotCard } from '@/data/tarot-cards'
 import { TarotReading, LunaResponse } from '@/types'
 import { TAROT_SPREADS } from '@/data/tarot-database'
@@ -12,10 +13,12 @@ import { Moon, Sparkles, Heart, Briefcase, DollarSign, User, MessageCircle, Shar
 import { toast } from 'react-hot-toast'
 
 type ReadingStage = 'welcome' | 'question' | 'shuffling' | 'revealing' | 'interpretation' | 'complete'
+type DisplayMode = '2d' | '3d'
 
 export default function TarotPage() {
   const { userProfile, canMakeReading, isSubscribed } = useAuth()
   const [stage, setStage] = useState<ReadingStage>('welcome')
+  const [displayMode, setDisplayMode] = useState<DisplayMode>('3d')
   const [question, setQuestion] = useState('')
   const [selectedSpread, setSelectedSpread] = useState('threeCard')
   const [currentReading, setCurrentReading] = useState<TarotReading | null>(null)
@@ -273,44 +276,87 @@ export default function TarotPage() {
             Your Cards Await
           </h2>
 
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <p className="text-mystical-light text-lg mb-4">
               <strong>Your Question:</strong> "{question}"
             </p>
-            <p className="text-gray-300">
-              Click each card to reveal your spiritual guidance...
-            </p>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <span className="text-gray-300">
+                {displayMode === '3d' ? 'Experience in immersive 3D...' : 'Click each card to reveal your spiritual guidance...'}
+              </span>
+              
+              {/* Display Mode Toggle */}
+              <div className="flex bg-slate-800/50 rounded-lg p-1 border border-mystical-light/30">
+                <button
+                  onClick={() => setDisplayMode('2d')}
+                  className={`px-3 py-1 rounded text-sm transition-all ${
+                    displayMode === '2d'
+                      ? 'bg-mystical-light text-mystical-deep font-medium'
+                      : 'text-mystical-light hover:bg-mystical-light/10'
+                  }`}
+                >
+                  2D
+                </button>
+                <button
+                  onClick={() => setDisplayMode('3d')}
+                  className={`px-3 py-1 rounded text-sm transition-all ${
+                    displayMode === '3d'
+                      ? 'bg-mystical-gold text-mystical-deep font-medium'
+                      : 'text-mystical-light hover:bg-mystical-gold/10'
+                  }`}
+                >
+                  3D ✨
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Cards display */}
-          <div className="flex justify-center items-end gap-8 mb-12 min-h-80">
-            {currentReading.cards.map((card, index) => (
-              <div key={index} className="text-center">
-                <TarotCardComponent
-                  card={card}
-                  isRevealed={revealedCards[index]}
-                  isReversed={currentReading.reversed[index]}
-                  onReveal={() => handleCardReveal(index)}
-                  position={index}
-                  totalCards={currentReading.cards.length}
-                />
-                <div className="mt-4">
-                  <h3 className="text-mystical-light font-medium text-sm">
-                    {spread.positions[index]}
-                  </h3>
-                  {revealedCards[index] && (
-                    <motion.p
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-xs text-gray-400 mt-1"
-                    >
-                      {card.name}
-                    </motion.p>
-                  )}
+          {displayMode === '3d' ? (
+            <div className="mb-12">
+              <Interactive3DTarot
+                cards={[]} // Empty array for now, component will use selectedCards
+                selectedCards={currentReading.cards}
+                onCardSelect={(card) => {
+                  const index = currentReading.cards.findIndex(c => c.name === card.name)
+                  if (index !== -1) handleCardReveal(index)
+                }}
+                mode={'3d-spread'}
+                enableShuffle={false}
+                enableAIImages={isSubscribed} // AI images for premium users
+                className="h-96"
+              />
+            </div>
+          ) : (
+            <div className="flex justify-center items-end gap-8 mb-12 min-h-80">
+              {currentReading.cards.map((card, index) => (
+                <div key={index} className="text-center">
+                  <TarotCardComponent
+                    card={card}
+                    isRevealed={revealedCards[index]}
+                    isReversed={currentReading.reversed[index]}
+                    onReveal={() => handleCardReveal(index)}
+                    position={index}
+                    totalCards={currentReading.cards.length}
+                  />
+                  <div className="mt-4">
+                    <h3 className="text-mystical-light font-medium text-sm">
+                      {spread.positions[index]}
+                    </h3>
+                    {revealedCards[index] && (
+                      <motion.p
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-xs text-gray-400 mt-1"
+                      >
+                        {card.name}
+                      </motion.p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </motion.div>
       </div>
     )
